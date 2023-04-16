@@ -1,4 +1,4 @@
-import express from "express"
+import express, { query } from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import { MongoClient } from "mongodb"
@@ -103,6 +103,32 @@ app.post('/messages', async (req,res)=>{
         await db.collection('messages').insertOne(newMessage)
         
         return res.sendStatus(201)
+    }catch (err){
+        return res.status(500).send(err.message)
+    }
+})
+
+app.get('/messages', async(req,res)=>{
+    const {user} = req.headers
+    const {limit} = req.query
+
+    if(limit <=0 || limit === NaN){
+        console.log(limit)
+        return res.status(422).send('campo limit inválido')
+    }
+
+    try{
+        const messagesArray = await db.collection('messages').find({
+            $or: [{from: user}, {to: user}, {to: 'todos'}, {type: 'status'}]
+        }).toArray()
+
+        if(limit >= messagesArray.length || !limit){
+            return res.send(messagesArray)
+        }
+
+        if(limit < messagesArray.length){
+            res.send(messagesArray.splice(-limit))
+        }
     }catch (err){
         return res.status(500).send(err.message)
     }

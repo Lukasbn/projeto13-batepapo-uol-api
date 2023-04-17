@@ -170,6 +170,16 @@ const deleteInative = setInterval(async ()=>{
         users.forEach(async (user)=> {
             if(Date.now() - user.lastStatus > 10000){
                 await db.collection('participants').deleteOne({_id: new ObjectId(user._id)})
+
+                const newMessage = {
+                    from: user.name,
+                    to: 'todos',
+                    text: "sai na sala...",
+                    type: 'status',
+                    time: `${dayjs().hour() < 10 ? `0${dayjs().hour()}` : dayjs().hour()}:${dayjs().minute() < 10 ? `0${dayjs().minute()}` : dayjs().minute()}:${dayjs().second() < 10 ? `0${dayjs().second()}` : dayjs().second()}`
+                }
+
+                await db.collection('messages').insertOne(newMessage)
             }
         })
 

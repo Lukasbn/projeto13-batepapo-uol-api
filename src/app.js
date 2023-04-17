@@ -108,18 +108,15 @@ app.post('/messages', async (req,res)=>{
     }
 })
 
-app.get('/messages', async(req,res)=>{
+app.get('/messages',async (req,res)=>{
     const {user} = req.headers
     const {limit} = req.query
 
-    console.log(Number(limit))
-
-    if(limit <=0 || !Number(limit)){
-        console.log(limit)
-        return res.status(422).send('campo limit inválido')
+    if(limit !== undefined){
+        if(limit <=0 || !Number(limit)){
+            return res.status(422).send('campo limit inválido')
+        }
     }
-
-    console.log("passou do teste di limit")
 
     try{
         const messagesArray = await db.collection('messages').find({
@@ -136,6 +133,34 @@ app.get('/messages', async(req,res)=>{
     }catch (err){
         return res.status(500).send(err.message)
     }
+})
+
+app.post('/status', async (req,res)=>{
+    const {user} = req.headers
+    
+    try{
+        if(!user){
+            return res.sendStatus(404)
+        }
+    
+        const uservalidation = await db.collection('participants').findOne({name: user})
+        
+        if(!uservalidation){
+            return res.sendStatus(404)
+        }
+
+        const editedTimer = {lastStatus: Date.now()}
+
+        const result = await db.collection('participants').updateOne(
+            {name: user},
+            {$set: editedTimer}
+        )
+
+        res.sendStatus(200)
+    }catch(err){
+        return res.status(500).send(err.message)
+    }
+
 })
 
 app.listen(5000, () => console.log('app running on port 5000'))

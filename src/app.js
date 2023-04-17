@@ -38,7 +38,7 @@ app.post('/participants', async (req, res) => {
         to: 'todos',
         text: "entra na sala...",
         type: 'status',
-        time: `${dayjs().hour()}:${dayjs().minute() < 10 ? `0${dayjs().minute()}` : dayjs().minute()}:${dayjs().second() < 10 ? `0${dayjs().second()}` : dayjs().second()}`
+        time: `${dayjs().hour() < 10 ? `0${dayjs().hour()}` : dayjs().hour()}:${dayjs().minute() < 10 ? `0${dayjs().minute()}` : dayjs().minute()}:${dayjs().second() < 10 ? `0${dayjs().second()}` : dayjs().second()}`
     }
 
     try {
@@ -96,7 +96,7 @@ app.post('/messages', async (req,res)=>{
         to,
         text,
         type,
-        time: `${dayjs().hour()}:${dayjs().minute() < 10 ? `0${dayjs().minute()}` : dayjs().minute()}:${dayjs().second() < 10 ? `0${dayjs().second()}` : dayjs().second()}`
+        time: `${dayjs().hour() < 10 ? `0${dayjs().hour()}` : dayjs().hour()}:${dayjs().minute() < 10 ? `0${dayjs().minute()}` : dayjs().minute()}:${dayjs().second() < 10 ? `0${dayjs().second()}` : dayjs().second()}`
     }
     
     try{
@@ -112,14 +112,18 @@ app.get('/messages', async(req,res)=>{
     const {user} = req.headers
     const {limit} = req.query
 
-    if(limit <=0 || limit === NaN){
+    console.log(Number(limit))
+
+    if(limit <=0 || !Number(limit)){
         console.log(limit)
         return res.status(422).send('campo limit inválido')
     }
 
+    console.log("passou do teste di limit")
+
     try{
         const messagesArray = await db.collection('messages').find({
-            $or: [{from: user}, {to: user}, {to: 'todos'}, {type: 'status'}]
+            $or: [{from: user}, {to: user}, {to: 'todos'}, {type: 'status'}, {type: 'message'}]
         }).toArray()
 
         if(limit >= messagesArray.length || !limit){

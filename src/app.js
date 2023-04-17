@@ -72,7 +72,7 @@ app.post('/messages', async (req,res)=>{
     const messageSchema = joi.object({
         to: joi.string().required(),
         text: joi.string().required(),
-        type: joi.any().valid('message','private_message'),
+        type: joi.any().valid('message','private_message').required(),
     })
 
     const validation = messageSchema.validate(req.body)
@@ -174,7 +174,7 @@ const deleteInative = setInterval(async ()=>{
                 const newMessage = {
                     from: user.name,
                     to: 'todos',
-                    text: "sai na sala...",
+                    text: "sai da sala...",
                     type: 'status',
                     time: `${dayjs().hour() < 10 ? `0${dayjs().hour()}` : dayjs().hour()}:${dayjs().minute() < 10 ? `0${dayjs().minute()}` : dayjs().minute()}:${dayjs().second() < 10 ? `0${dayjs().second()}` : dayjs().second()}`
                 }

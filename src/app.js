@@ -1,7 +1,7 @@
 import express, { query } from "express"
 import cors from "cors"
 import dotenv from "dotenv"
-import { MongoClient } from "mongodb"
+import { MongoClient, ObjectId } from "mongodb"
 import joi from "joi"
 import dayjs from "dayjs"
 
@@ -162,5 +162,22 @@ app.post('/status', async (req,res)=>{
     }
 
 })
+
+const deleteInative = setInterval(async ()=>{
+    try{
+        const users = await db.collection('participants').find().toArray()
+        console.log(users)
+        users.forEach(async (user)=> {
+            if(Date.now() - user.lastStatus > 10000){
+                await db.collection('participants').deleteOne({_id: new ObjectId(user._id)})
+            }
+        })
+
+        console.log(users)
+
+    }catch (err){
+        return console.log("deu erro aqui",(err))
+    }
+},15000)
 
 app.listen(5000, () => console.log('app running on port 5000'))
